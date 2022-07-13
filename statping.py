@@ -40,10 +40,9 @@ def export_services(
     )
     try:
         s3.upload_file(file_name, bucket_name, object_name)
+        click.echo("Statping services exported and uploaded successfully.")
     except Exception as e:
         click.echo("{} occured while uploading file to S3.".format(e))
-
-    click.echo("Statping services exported and uploaded successfully.")
 
 
 @click.command()
