@@ -64,6 +64,7 @@ def create_services():
     statping_host_url = os.environ["STATPING_HOST_URL"]
     statping_api_token = os.environ["STATPING_API_TOKEN"]
 
+    # Get the encrypted file from S3
     statping_services = None
     s3 = boto3.client(
         "s3",
@@ -78,6 +79,7 @@ def create_services():
     except Exception as e:
         logging.info("{} occured while fetching S3 bucket.".format(e))
 
+    # Decrypt the services and update the monitoring dashboard
     if statping_services:
         decrypt_file(filename)
         with open(filename, "rb") as file_decrypted:
@@ -91,3 +93,7 @@ def create_services():
                 logging.info("{}".format(response.json["error"]))
         except Exception as e:
             logging.info("{} occured while craeting the statping service.".format(e))
+
+
+if __name__ == "__main__":
+    create_services()
