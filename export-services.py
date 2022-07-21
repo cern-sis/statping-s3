@@ -18,10 +18,15 @@ def export_services():
         os.environ["STATPING_HOST_URL"],
         os.environ["STATPING_API_TOKEN"],
     )
+    logging.info(
+        file_name, bucket_name, s3_host, host_url
+    )
     try:
+        logging.info(host_url)
         response = requests.get(
             host_url, headers={"Authorization": "Bearer {}".format(token)}
         )
+        logging.info(response.status_code)
         services_json = response.json()
         json.dump(services_json, file_name)
     except Exception as e:
