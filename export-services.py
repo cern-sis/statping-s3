@@ -8,8 +8,8 @@ import boto3
 import requests
 
 
-def load_env():
-    return (
+def export_services():
+    file_name, bucket_name, access_key, secret_key, s3_host, host_url, token = (
         os.environ["FILE_NAME"],
         os.environ["BUCKET_NAME"],
         os.environ["S3_ACCESS_KEY"],
@@ -18,10 +18,6 @@ def load_env():
         os.environ["STATPING_HOST_URL"],
         os.environ["STATPING_API_TOKEN"],
     )
-
-
-def export_services():
-    file_name, bucket_name, access_key, secret_key, s3_host, host_url, token = load_env
     try:
         response = requests.get(
             host_url, headers={"Authorization": "Bearer {}".format(token)}
