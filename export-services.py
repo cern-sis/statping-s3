@@ -1,20 +1,24 @@
+#!/usr/bin/env python
+
 import json
-import os
 import logging
+import os
+
 import boto3
 import requests
 
 
 def load_env():
     return (
-        os.environ['FILE_NAME'],
-        os.environ['BUCKET_NAME'],
-        os.environ['S3_ACCESS_KEY'],
-        os.environ['S3_SECRET_KEY'],
-        os.environ['S3_HOST'],
-        os.environ['STATPING_HOST_URL'],
-        os.environ['STATPING_API_TOKEN']
+        os.environ["FILE_NAME"],
+        os.environ["BUCKET_NAME"],
+        os.environ["S3_ACCESS_KEY"],
+        os.environ["S3_SECRET_KEY"],
+        os.environ["S3_HOST"],
+        os.environ["STATPING_HOST_URL"],
+        os.environ["STATPING_API_TOKEN"],
     )
+
 
 def export_services():
     file_name, bucket_name, access_key, secret_key, s3_host, host_url, token = load_env
