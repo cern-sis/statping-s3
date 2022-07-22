@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import base64
 import json
 import logging
 import os
@@ -8,57 +7,6 @@ import os
 import boto3
 import requests
 from cryptography.fernet import Fernet
-
-NUM_BYTES_FOR_LEN = 4
-
-
-def create_cmk(description):
-    """Creates a KMS Customer Master Key
-
-    Description is used to differentiate between CMKs.
-    """
-
-    kms_client = boto3.client("kms")
-    response = kms_client.create_key(Description=description)
-
-    # Return the key ID and ARN
-    return response["KeyMetadata"]["KeyId"], response["KeyMetadata"]["Arn"]
-
-
-def create_data_key(cmk_id, key_spec="AES_256"):
-    """Generate a data key to use when encrypting and decrypting data"""
-
-    # Create data key
-    kms_client = boto3.client("kms")
-    response = kms_client.generate_data_key(KeyId=cmk_id, KeySpec=key_spec)
-
-    # Return the encrypted and plaintext data key
-    return response["CiphertextBlob"], base64.b64encode(response["Plaintext"])
-
-
-def encrypt_file(filename, cmk_id):
-    """Encrypt JSON data using an AWS KMS CMK"""
-    with open(filename, "rb") as file:
-        file_contents = file.read()
-
-    data_key_encrypted, data_key_plaintext = create_data_key(cmk_id)
-    if data_key_encrypted is None:
-        logging.error("Encryption key not available.")
-
-    # Encrypt the data
-    f = Fernet(data_key_plaintext)
-    file_contents_encrypted = f.encrypt(file_contents)
-
-    # Write the encrypted data key and encrypted file contents together
-    with open(filename, "wb") as file_encrypted:
-        file_encrypted.write(
-            len(data_key_encrypted).to_bytes(NUM_BYTES_FOR_LEN, byteorder="big")
-        )
-        file_encrypted.write(data_key_encrypted)
-        file_encrypted.write(file_contents_encrypted)
-    logging.info("File encrypted successfully.")
-
-    return
 
 
 def export_services():
@@ -72,7 +20,7 @@ def export_services():
     s3_host = os.environ["S3_HOST"]
     statping_host_url = os.environ["STATPING_HOST_URL"]
     statping_api_token = os.environ["STATPING_API_TOKEN"]
-    # cmk_description = os.environ["CMK_DESCRIPTION"]
+    encryption_key = os.environ["STATPING_DATA_KEY"]
 
     # Export Statping services JSON
     try:
@@ -81,13 +29,28 @@ def export_services():
             headers={"Authorization": "Bearer {}".format(statping_api_token)},
         )
         services_json = response.json()
-        json.dump(services_json, filename)
+        if response.status_code == 200:
+            with open(filename, "w") as file:
+                json.dump(services_json, file)
+        else:
+            logging.error(
+                "{} occured while exporting services.".format(response.status_code)
+            )
     except Exception as e:
-        logging.info("{} occured while exporting services.".format(e))
+        logging.error("{} occured while exporting services.".format(e))
 
-    # Encrypt and Upload to S3
-    # cmk_id, _ = create_cmk(cmk_description)
-    # encrypt_file(filename, cmk_id)
+    # Encrypt the services and Upload to S3
+    if encryption_key is None:
+        logging.error("Encryption key not available.")
+
+    f = Fernet(encryption_key)
+    with open(filename, "rb") as file:
+        file_data = file.read()
+    encrypted_data = f.encrypt(file_data)
+    with open(filename, "wb") as file:
+        file.write(encrypted_data)
+    logging.info("File encrypted successfully.")
+
     object_name = os.path.basename(filename)
     s3 = boto3.client(
         "s3",

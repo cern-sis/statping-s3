@@ -27,7 +27,7 @@ The required enviornment variables are:
 5. S3 Host - Host URL of the S3 Instance
 6. Statping Host URL - URL of the statping import/export API endpoint. For example: `http://localhost:8080/api/settings/[export/import]`
 7. Statping API Token - Auth Token to access the statping API
-8. Customer Master Key Description - CMK key description
+8. Master Key - Encryption/Decryption key for Statping data
 
 ### Export Services
 
