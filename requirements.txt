@@ -1,3 +1,4 @@
 click
 requests
 boto3
+cryptography

@@ -72,7 +72,7 @@ def export_services():
     s3_host = os.environ["S3_HOST"]
     statping_host_url = os.environ["STATPING_HOST_URL"]
     statping_api_token = os.environ["STATPING_API_TOKEN"]
-    cmk_description = os.environ["CMK_DESCRIPTION"]
+    # cmk_description = os.environ["CMK_DESCRIPTION"]
 
     # Export Statping services JSON
     try:
@@ -86,8 +86,8 @@ def export_services():
         logging.info("{} occured while exporting services.".format(e))
 
     # Encrypt and Upload to S3
-    cmk_id, _ = create_cmk(cmk_description)
-    encrypt_file(filename, cmk_id)
+    # cmk_id, _ = create_cmk(cmk_description)
+    # encrypt_file(filename, cmk_id)
     object_name = os.path.basename(filename)
     s3 = boto3.client(
         "s3",
