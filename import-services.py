@@ -49,6 +49,8 @@ def import_services():
         # Flag to check and retry the import
         imported, retry = False, 3
         while imported != True and retry > 0:
+            if retry == 3:
+                sleep(20)
             headers = {"Authorization": "Bearer {}".format(statping_api_token)}
             try:
                 response = requests.post(statping_host_url, headers=headers, json=obj)
@@ -66,6 +68,7 @@ def import_services():
             logging.info(
                 "Maximum retries exceeded, Please check the logs and try again."
             )
+    return
 
 
 if __name__ == "__main__":
