@@ -19,7 +19,7 @@ def export_services():
     s3_secret_key = os.environ["S3_SECRET_KEY"]
     s3_host = os.environ["S3_HOST"]
     statping_host_url = os.environ["STATPING_HOST_URL"]
-    statping_api_token = os.environ["STATPING_API_TOKEN"]
+    statping_api_token = os.environ["API_SECRET"]
     encryption_key = os.environ["STATPING_DATA_KEY"]
 
     # Export Statping services JSON
