@@ -2,13 +2,14 @@
 import json
 import logging
 import os
+from time import sleep
 
 import boto3
 import requests
 from cryptography.fernet import Fernet
 
 
-def create_services():
+def import_services():
     """Import JSON data to Statping."""
 
     # Load env
@@ -37,23 +38,38 @@ def create_services():
     except Exception as e:
         logging.info("{} occured while fetching S3 bucket.".format(e))
 
-    # Decrypt the services and update the monitoring dashboard
     if statping_services:
+        # Decrypt the services and update the monitoring dashboard
         f = Fernet(encryption_key)
         with open(filename, "rb") as file:
             encrypted_data = file.read()
         decrypted_data = f.decrypt(encrypted_data)
         obj = json.loads(decrypted_data)
-        headers = {"Authorization": "Bearer {}".format(statping_api_token)}
-        try:
-            response = requests.post(statping_host_url, headers=headers, json=obj)
-            if response.status_code == 200:
-                logging.info("Statping service exported and uploaded successfully.")
-            else:
-                logging.info("{}".format(response.text))
-        except Exception as e:
-            logging.info("{} occured while craeting the statping service.".format(e))
+
+        # Remove the data already provided from config
+        obj["users"] = []
+
+        # Flag to check and retry the import
+        imported, retry = False, 3
+        while imported != True and retry > 0:
+            headers = {"Authorization": "Bearer {}".format(statping_api_token)}
+            try:
+                response = requests.post(statping_host_url, headers=headers, json=obj)
+                retry -= 1
+                if response.status_code == 200:
+                    imported = True
+                    logging.info("Statping service exported and uploaded successfully.")
+            except Exception as e:
+                logging.info(
+                    "{} occured while creating the statping service.".format(e)
+                )
+            sleep(5)
+
+        if retry == 0:
+            logging.info(
+                "Maximum retries exceeded, Please check the logs and try again."
+            )
 
 
 if __name__ == "__main__":
-    create_services()
+    import_services()
