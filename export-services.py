@@ -29,7 +29,13 @@ def export_services():
             headers={"Authorization": "Bearer {}".format(statping_api_token)},
         )
         services_json = response.json()
+        # Check if there are services, If not skip upload to S3
+        if not services_json.get("services"):
+            logging.info("No services to export, Skipping upload to S3.")
+            return
         if response.status_code == 200:
+            # Remove the k8s cluster credentials
+            services_json["users"] = []
             with open(filename, "w") as file:
                 json.dump(services_json, file)
         else:

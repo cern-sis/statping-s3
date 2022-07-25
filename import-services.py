@@ -46,9 +46,6 @@ def import_services():
         decrypted_data = f.decrypt(encrypted_data)
         obj = json.loads(decrypted_data)
 
-        # Remove the data already provided from config
-        obj["users"] = []
-
         # Flag to check and retry the import
         imported, retry = False, 3
         while imported != True and retry > 0:
