@@ -76,7 +76,7 @@ def import_services():
                 )
                 if response.status_code == 200:
                     logging.info("Statping service exported and uploaded successfully.")
-                    return
+                    break
             except Exception as e:
                 logging.info(
                     "{} occured while creating the statping service.".format(e)
