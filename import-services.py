@@ -45,12 +45,12 @@ def import_services():
             encrypted_data = file.read()
         decrypted_data = f.decrypt(encrypted_data)
         obj = json.loads(decrypted_data)
-
+        obj['users'] = []
         # Flag to check and retry the import
         imported, retry = False, 3
         while imported != True and retry > 0:
             if retry == 3:
-                sleep(20)
+                sleep(35)
             headers = {"Authorization": "Bearer {}".format(statping_api_token)}
             try:
                 response = requests.post(statping_host_url, headers=headers, json=obj)
