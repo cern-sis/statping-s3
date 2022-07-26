@@ -64,14 +64,29 @@ def import_services():
         decrypted_data = f.decrypt(encrypted_data)
         obj = json.loads(decrypted_data)
         obj["users"] = []
-        try:
-            response = requests.post(
-                statping_import_host_url, headers=headers, json=obj
+        # Flag to check and retry the import
+        retry = 3
+        while retry > 0:
+            if retry == 3:
+                sleep(35)
+            try:
+                retry -= 1
+                response = requests.post(
+                    statping_import_host_url, headers=headers, json=obj
+                )
+                if response.status_code == 200:
+                    logging.info("Statping service exported and uploaded successfully.")
+                    return
+            except Exception as e:
+                logging.info(
+                    "{} occured while creating the statping service.".format(e)
+                )
+            sleep(5)
+
+        if retry == 0:
+            logging.info(
+                "Maximum retries exceeded, Please check the logs and try again."
             )
-            if response.status_code == 200:
-                logging.info("Statping service exported and uploaded successfully.")
-        except Exception as e:
-            logging.info("{} occured while creating the statping service.".format(e))
     return
 
 
