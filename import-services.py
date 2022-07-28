@@ -65,7 +65,6 @@ def import_services():
 
     if statping_services:
         logging.info("waiting for statping to start")
-        sleep(30)
         # Decrypt the services and update the monitoring dashboard
         f = Fernet(encryption_key)
         with open(filename, "rb") as file:
@@ -84,6 +83,7 @@ def import_services():
                 response = requests.post(
                     statping_import_host_url, headers=headers, json=obj
                 )
+                logging.info(response.status_code)
                 if response.status_code == 200:
                     logging.info("Statping service exported and uploaded successfully.")
                     break
