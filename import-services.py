@@ -26,14 +26,18 @@ def import_services():
     encryption_key = os.environ["STATPING_DATA_KEY"]
 
     # Check services and import only if no services are present
+    logging.info("Starting Logging")
     headers = {"Authorization": "Bearer {}".format(statping_api_token)}
     try:
+        logging.info("Sleeping for 30 seconds")
         sleep(30)
         response = requests.get(
             statping_export_host_url,
             headers=headers,
         )
+        logging.info(response.status_code)
         if response.status_code == 200:
+            logging.info("Export Hit")
             services_json = response.json()
             if services_json.get("services"):
                 logging.info("Services already imported!")
@@ -42,6 +46,7 @@ def import_services():
         logging.error("{} occured while exporting services.".format(e))
 
     # Get the encrypted file from S3
+    logging.info("connect with s3")
     statping_services = None
     s3 = boto3.client(
         "s3",
@@ -58,6 +63,7 @@ def import_services():
         logging.info("{} occured while fetching S3 bucket.".format(e))
 
     if statping_services:
+        logging.info("waiting for statping to start")
         sleep(30)
         # Decrypt the services and update the monitoring dashboard
         f = Fernet(encryption_key)
@@ -69,6 +75,7 @@ def import_services():
         # Flag to check and retry the import
         retry = 3
         while retry > 0:
+            logging.info(retry)
             if retry == 3:
                 sleep(35)
             try:
@@ -93,11 +100,5 @@ def import_services():
 
 
 if __name__ == "__main__":
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    root.addHandler(handler)
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     import_services()
