@@ -28,6 +28,7 @@ def import_services():
     # Check services and import only if no services are present
     logging.info("Starting Logging")
     headers = {"Authorization": "Bearer {}".format(statping_api_token)}
+    """
     try:
         logging.info("Sleeping for 30 seconds")
         sleep(30)
@@ -44,7 +45,7 @@ def import_services():
                 return
     except Exception as e:
         logging.error("{} occured while exporting services.".format(e))
-
+    """
     # Get the encrypted file from S3
     logging.info("connect with s3")
     statping_services = None
