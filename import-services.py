@@ -76,8 +76,6 @@ def import_services():
         retry = 3
         while retry > 0:
             logging.info(retry)
-            if retry == 3:
-                sleep(35)
             try:
                 retry -= 1
                 response = requests.post(
