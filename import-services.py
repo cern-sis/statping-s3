@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import sys
-
 from time import sleep
 
 import boto3
