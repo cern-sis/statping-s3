@@ -41,7 +41,6 @@ def import_services():
             services_json = response.json()
             if services_json.get("services"):
                 logging.info("Services already imported!")
-                return
     except Exception as e:
         logging.error("{} occured while exporting services.".format(e))
 
@@ -83,7 +82,6 @@ def import_services():
                 logging.info("Server responded with {}".format(response.status_code))
                 if response.status_code == 200:
                     logging.info("Statping service exported and uploaded successfully.")
-                    return
             except Exception as e:
                 logging.info(
                     "{} occured while creating the statping service.".format(e)
@@ -96,7 +94,9 @@ def import_services():
             )
 
     logging.info("Exiting import service!")
-    return
+
+    while True:
+        logging.info("Side car Sleeping!")
 
 
 if __name__ == "__main__":
