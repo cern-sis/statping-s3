@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import sys
 
 import boto3
 import requests
@@ -23,6 +24,7 @@ def export_services():
     encryption_key = os.environ["STATPING_DATA_KEY"]
 
     # Export Statping services JSON
+    logging.info("Starting Export")
     try:
         response = requests.get(
             statping_host_url,
@@ -46,6 +48,7 @@ def export_services():
         logging.error("{} occured while exporting services.".format(e))
 
     # Encrypt the services and Upload to S3
+    logging.info("Connecting with S3 to push the encrypted data...")
     if encryption_key is None:
         logging.error("Encryption key not available.")
 
@@ -70,8 +73,10 @@ def export_services():
     except Exception as e:
         logging.info("{} occured while uploading file to S3.".format(e))
 
+    logging.info("Exiting export service!")
     return
 
 
 if __name__ == "__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     export_services()

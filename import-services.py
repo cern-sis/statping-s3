@@ -70,7 +70,7 @@ def import_services():
             encrypted_data = file.read()
         decrypted_data = f.decrypt(encrypted_data)
         obj = json.loads(decrypted_data)
-        obj["users"] = []
+
         # Flag to check and retry the import
         retry = 3
         while retry > 0:
@@ -101,5 +101,4 @@ def import_services():
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-    print(sys.version)
     import_services()
